@@ -50,7 +50,7 @@ class Selection extends Component<SelectionProps, SelectionState> {
     async getTitleInformation() {
         try {
             //First, try querying with the title.
-            let response = await fetch("http://www.omdbapi.com/?t=" + encodeURI(this.props.title)
+            let response = await fetch("https://www.omdbapi.com/?t=" + encodeURI(this.props.title)
                 +"&plot=full&apikey=fa79688c");
             if (!response.ok) {
                 alert("Bad status: " + response.status);
