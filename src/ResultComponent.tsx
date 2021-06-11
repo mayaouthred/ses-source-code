@@ -49,7 +49,7 @@ class ResultComponent extends Component<ResultComponentProps, ResultComponentSta
     async getMovieData(page: number) {
         try {
             //Request a list of movies from the API.
-            let response = await fetch("http://www.omdbapi.com/?s=" + encodeURI(this.props.title)
+            let response = await fetch("https://www.omdbapi.com/?s=" + encodeURI(this.props.title)
                 +"&page="+ this.state.pageNumber +"&apikey=fa79688c");
             if (!response.ok) {
                 alert("Bad status: " + response.status);

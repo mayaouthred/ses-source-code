@@ -60,7 +60,7 @@ class Selection extends Component<SelectionProps, SelectionState> {
 
             //If the query isn't successful with the title, try searching with the ID instead.
             if (result.Response === "False") {
-                let responseID = await fetch("http://www.omdbapi.com/?i=" + encodeURI(this.props.id)
+                let responseID = await fetch("https://www.omdbapi.com/?i=" + encodeURI(this.props.id)
                     +"&plot=full&apikey=fa79688c");
                 if (!response.ok) {
                     alert("Bad status: " + response.status);
