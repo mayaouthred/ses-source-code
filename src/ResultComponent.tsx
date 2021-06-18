@@ -2,12 +2,13 @@ import React, {Component} from 'react';
 import Selection from './Selection';
 
 interface ResultComponentProps {
-    title: string, //the title the user want to search for
+    title: string, //the title the user wants to search for
+    numResults: number //the number of API pages per page of user results
 }
 
 interface ResultComponentState {
     results: any; //a formatted list of ten or less buttons with the titles of the result's movies
-    numResults: number; //number of total results for the search
+    totalResults: number; //number of total results for the search
     pageNumber: number; //the page number the results came from
     selectedTitle: string; //the title the movie the user has selected
     selectedID: string; //the ID of the movie the user has selected
@@ -19,67 +20,84 @@ class ResultComponent extends Component<ResultComponentProps, ResultComponentSta
         super(props);
         this.state = {
             results: [],
-            numResults: 0,
-            pageNumber: 1,
+            totalResults: 0,
+            pageNumber: 0,
             selectedTitle: "Iron Man",
             selectedID: "tt0371746"
         }
     }
 
     componentDidMount() {
-        this.getMovieData(1);
+        this.getMovieData();
     }
 
     //If title changed, reset page number and request data. If page number changed, re-request the data.
     componentDidUpdate(prevProps: any, prevState: any) {
-        if (this.props.title !== prevProps.title) {
+        if (this.props.title !== prevProps.title || this.props.numResults !== prevProps.numResults) {
             this.setState({
-                pageNumber: 1,
+                pageNumber: 0,
             }, () => {
-                this.getMovieData(this.state.pageNumber);
+                this.getMovieData();
             });
         } else if (this.state.pageNumber !== prevState.pageNumber) {
-            this.getMovieData(this.state.pageNumber);
+            this.getMovieData();
         }
 
     }
 
     //Makes a query to the API using this.props.title and this.state.pageNumber. Sets this.state.results and
     // this.state.numResults accordingly.
-    async getMovieData(page: number) {
+    async getMovieData() {
         try {
-            //Request a list of movies from the API.
-            let response = await fetch("https://www.omdbapi.com/?s=" + encodeURI(this.props.title)
-                +"&page="+ this.state.pageNumber +"&apikey=fa79688c");
-            if (!response.ok) {
-                alert("Bad status: " + response.status);
-                return;
-            }
-            let result = await response.json();
+            let apiPageNumber: number = this.state.pageNumber * this.props.numResults + 1;
+            let titles: any[] = [];
 
-            //If the response has search results, format into a list of button elements with the imdbID as the key.
-            //Update state accordingly.
-            if (result.Response === "True") {
-                let movieTitles: any[] = result.Search;
-                let parsedResult = movieTitles.map(movie => (
+            for (let i: number = apiPageNumber; i < Number(apiPageNumber) + Number(this.props.numResults); i++) {
+                console.log(i);
+
+                //Request a list of movies from the API.
+                let response = await fetch("https://www.omdbapi.com/?s=" + encodeURI(this.props.title)
+                    +"&page="+ i +"&apikey=fa79688c");
+                if (!response.ok) {
+                    alert("Bad status: " + response.status);
+                    return;
+                }
+                let result = await response.json();
+
+                //If the response has search results, format into a list of button elements with the imdbID as the key.
+                //Update state accordingly.
+                if (result.Response === "True") {
+                    let movieTitles: any[] = result.Search;
+                    let parsedResult = movieTitles.map(movie => (
                         <li className="title-button">
                             <button onClick={this.onTitleButtonClick} key={movie.imdbID}
                                     value={movie.imdbID}><b>{movie.Title}</b></button>
                         </li>
                     ));
+                    titles = titles.concat(parsedResult);
 
-                this.setState({
-                    results: parsedResult,
-                    numResults: result.totalResults
-                });
+                    this.setState({
+                        totalResults: result.totalResults
+                    });
 
-            } else {
-                //Otherwise, indicate that the search was unsuccessful.
-                this.setState({
-                    results: <li>I'm sorry, I couldn't find anything for that search.</li>,
-                    numResults: 0
-                })
+                    if ((i+1)*10 > result.totalResults) {
+                        break;
+                    }
+
+                } else {
+                    //Otherwise, indicate that the search was unsuccessful.
+                    titles = [<li>I'm sorry, I couldn't find anything for that search.</li>];
+                    this.setState({
+                        totalResults: 0
+                    });
+                    break;
+                }
             }
+
+            this.setState({
+                results: titles,
+            });
+
 
         } catch (e) {
             alert("There was a problem connecting with the server.")
@@ -89,7 +107,7 @@ class ResultComponent extends Component<ResultComponentProps, ResultComponentSta
 
     //Increment this.state.pageNumber by one.
     onNextButtonClick = () => {
-        if (Math.ceil(this.state.numResults / 10) > this.state.pageNumber) {
+        if (Math.ceil(this.state.totalResults / (this.props.numResults * 10) - 1) > this.state.pageNumber) {
             let temp: number = this.state.pageNumber + 1;
             this.setState({
                 pageNumber: temp
@@ -100,7 +118,7 @@ class ResultComponent extends Component<ResultComponentProps, ResultComponentSta
 
     //Decrement the this.state.pageNumber by one.
     onPrevButtonClick = () => {
-        if (this.state.pageNumber > 1) {
+        if (this.state.pageNumber > 0) {
             let temp: number = this.state.pageNumber - 1;
             this.setState({
                 pageNumber: temp
@@ -125,8 +143,8 @@ class ResultComponent extends Component<ResultComponentProps, ResultComponentSta
                     <div id="pagination">
                     <button className='search-button' onClick={this.onPrevButtonClick}>Previous ten results</button>
                     <button className='search-button' onClick={this.onNextButtonClick}>Next ten results</button>
-                    <p>Currently displaying results {this.state.pageNumber*10-9} through {Math.min(this.state.pageNumber*10,
-                        this.state.numResults)} of {this.state.numResults}</p>
+                    <p>Currently displaying results {(this.state.pageNumber+1)*this.props.numResults*10-(this.props.numResults*10-1)} through {Math.min((this.state.pageNumber+1)*this.props.numResults*10,
+                        this.state.totalResults)} of {this.state.totalResults}</p>
                     </div>
                 </div>
 

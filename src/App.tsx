@@ -5,7 +5,8 @@ import ResultComponent from "./ResultComponent";
 
 
 interface AppState {
-  query: string; //search input by the user
+    query: string; //search input by the user
+    numResults: number; //number of results per page
 }
 
 /**
@@ -20,24 +21,30 @@ class App extends Component<{}, AppState> {
   constructor(props: any) {
     super(props);
     this.state = {
-      query: "Iron Man",
+        query: "Iron Man",
+        numResults: 1
     };
   }
 
   //Update this.state with a new query and filter text.
   updateQuery = (newQuery: string) => {
     this.setState({
-      query: newQuery,
+        query: newQuery,
     });
+  }
 
+  updateRange = (newRange: any) => {
+      this.setState({
+          numResults: newRange
+      });
   }
 
   render() {
     return (
         <div>
           <h1 id='heading'>Movie Metadata</h1>
-          <SearchComponent onInputChange={this.updateQuery}/>
-          <ResultComponent title={this.state.query}/>
+          <SearchComponent onInputChange={this.updateQuery} onRangeChange={this.updateRange}/>
+          <ResultComponent title={this.state.query} numResults={this.state.numResults}/>
         </div>
     )
   }
