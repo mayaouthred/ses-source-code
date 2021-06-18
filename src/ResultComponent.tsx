@@ -65,7 +65,7 @@ class ResultComponent extends Component<ResultComponentProps, ResultComponentSta
                 let result = await response.json();
 
                 //If the response has search results, format into a list of button elements with the imdbID as the key.
-                //Update state accordingly.
+                //Update state with the total number of results accordingly.
                 if (result.Response === "True") {
                     let movieTitles: any[] = result.Search;
                     let parsedResult = movieTitles.map(movie => (
@@ -80,12 +80,13 @@ class ResultComponent extends Component<ResultComponentProps, ResultComponentSta
                         totalResults: result.totalResults
                     });
 
+                    //If this is the last page of results, exit.
                     if ((i+1)*10 > result.totalResults) {
                         break;
                     }
 
                 } else {
-                    //Otherwise, indicate that the search was unsuccessful.
+                    //Otherwise, indicate that the search was unsuccessful and exit.
                     titles = [<li>I'm sorry, I couldn't find anything for that search.</li>];
                     this.setState({
                         totalResults: 0

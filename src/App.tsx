@@ -26,13 +26,14 @@ class App extends Component<{}, AppState> {
     };
   }
 
-  //Update this.state with a new query and filter text.
+  //Update this.state with new query text.
   updateQuery = (newQuery: string) => {
     this.setState({
         query: newQuery,
     });
   }
 
+  //Updates this.state with new range of search results.
   updateRange = (newRange: any) => {
       this.setState({
           numResults: newRange

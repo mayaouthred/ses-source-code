@@ -47,7 +47,7 @@ class SearchComponent extends Component<SearchComponentProps, SearchComponentSta
         this.props.onInputChange(this.state.text);
     }
 
-
+    //Generate the options for the dropdown menu.
     setDropdownOptions = (): any[] => {
         let options: any[] = [];
         for (let i = 1; i <= this.MAX_RESULTS_PER_PAGE; i++) {
