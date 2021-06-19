@@ -142,8 +142,8 @@ class ResultComponent extends Component<ResultComponentProps, ResultComponentSta
                     <ul className="titles">{this.state.results}</ul>
 
                     <div id="pagination">
-                    <button className='search-button' onClick={this.onPrevButtonClick}>Previous ten results</button>
-                    <button className='search-button' onClick={this.onNextButtonClick}>Next ten results</button>
+                    <button className='search-button' onClick={this.onPrevButtonClick}>Previous page</button>
+                    <button className='search-button' onClick={this.onNextButtonClick}>Next page</button>
                     <p>Currently displaying results {(this.state.pageNumber+1)*this.props.numResults*10-(this.props.numResults*10-1)} through {Math.min((this.state.pageNumber+1)*this.props.numResults*10,
                         this.state.totalResults)} of {this.state.totalResults}</p>
                     </div>
